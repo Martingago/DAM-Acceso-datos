@@ -15,7 +15,5 @@ public class MainApartado1 {
         //generamos el fichero xml:
         createXML.generateXML();
 
-        
-        
     }
 }
