@@ -42,7 +42,6 @@ public class LeerXMLDoom {
                                     + atributoAutor.getElementsByTagName("apellido").item(0).getTextContent());
                         }
                     }
-
                     System.out.println("Editorial: " + atributo.getElementsByTagName("editorial").item(0).getTextContent());
                     System.out.println("Precio: " + atributo.getElementsByTagName("precio").item(0).getTextContent());
                 }

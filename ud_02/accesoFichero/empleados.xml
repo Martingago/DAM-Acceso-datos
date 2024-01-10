@@ -1,1 +1,45 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><empleados><empleado><codigo>1</codigo><nombre>Martin</nombre><direccion>Calle 1</direccion><salario>1400.0</salario><comision>10.2</comision></empleado><empleado><codigo>2</codigo><nombre>Pedro</nombre><direccion>Calle 2</direccion><salario>1500.0</salario><comision>10.15</comision></empleado><empleado><codigo>3</codigo><nombre>María</nombre><direccion>Calle 3</direccion><salario>1500.0</salario><comision>10.15</comision></empleado><empleado><codigo>4</codigo><nombre>Carlos</nombre><direccion>Calle 4</direccion><salario>1250.0</salario><comision>10.25</comision></empleado><empleado><codigo>5</codigo><nombre>Sara</nombre><direccion>calle 5</direccion><salario>1400.0</salario><comision>10.2</comision></empleado><empleado><codigo>6</codigo><nombre>Daniel</nombre><direccion>Calle 6</direccion><salario>1900.0</salario><comision>10.0</comision></empleado></empleados>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<empleados>
+    <empleado>
+        <codigo>1</codigo>
+        <nombre>Martin</nombre>
+        <direccion>Calle 1</direccion>
+        <salario>1400.0</salario>
+        <comision>10.2</comision>
+    </empleado>
+    <empleado>
+        <codigo>2</codigo>
+        <nombre>Pedro</nombre>
+        <direccion>Calle 2</direccion>
+        <salario>1500.0</salario>
+        <comision>10.15</comision>
+    </empleado>
+    <empleado>
+        <codigo>3</codigo>
+        <nombre>María</nombre>
+        <direccion>Calle 3</direccion>
+        <salario>1500.0</salario>
+        <comision>10.15</comision>
+    </empleado>
+    <empleado>
+        <codigo>4</codigo>
+        <nombre>Carlos</nombre>
+        <direccion>Calle 4</direccion>
+        <salario>1250.0</salario>
+        <comision>10.25</comision>
+    </empleado>
+    <empleado>
+        <codigo>5</codigo>
+        <nombre>Sara</nombre>
+        <direccion>calle 5</direccion>
+        <salario>1400.0</salario>
+        <comision>10.2</comision>
+    </empleado>
+    <empleado>
+        <codigo>6</codigo>
+        <nombre>Daniel</nombre>
+        <direccion>Calle 6</direccion>
+        <salario>1900.0</salario>
+        <comision>10.0</comision>
+    </empleado>
+</empleados>

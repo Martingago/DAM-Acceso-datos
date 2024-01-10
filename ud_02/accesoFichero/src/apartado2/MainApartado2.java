@@ -13,7 +13,7 @@ public class MainApartado2 {
         System.out.println("Lectura con DOM: ");
         leerDOM.leerDocumentoXMLconDOM();
         //Ejecuta la salida de codigo mediante SAX:
-        System.out.println("Lectura con SAX:");
+        System.out.println("\n\n\nLectura con SAX:");
         leerSAX.readXMLwithSAX();
         
     }
