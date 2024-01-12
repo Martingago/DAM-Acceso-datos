@@ -16,6 +16,9 @@ public class SQLHelper {
         String mensajeError = "";
         
         switch (errorCode) {
+            case 1045:
+                mensajeError = "Los datos de inicio de sesión no son correctos \n" + ex.getMessage();
+                break;
             case 1146:
                 mensajeError = "Error en la consulta, la tabla seleccionada no existe \n" + ex.getMessage();
                 break;
