@@ -20,14 +20,9 @@ public class Empleado {
 	@Column(name="sueldo")
 	private double sueldo;
 	
-	@Column(name="departamento", insertable = false, updatable = false)
+	@Column(name="departamento")
 	private int departamento;
-	
-	
-	 @ManyToOne
-	    @JoinColumn(name="departamento")
-	    private Departamento departamento_data;
-	
+		
 	
 	//Constructor	
 	public Empleado(){}

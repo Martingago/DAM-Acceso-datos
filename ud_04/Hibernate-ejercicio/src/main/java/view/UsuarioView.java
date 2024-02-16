@@ -33,7 +33,7 @@ public class UsuarioView {
 		//System.out.println(getDepartamento);
 		
 		
-		DepartamentoController.listTablaDepartamento();
+		//DepartamentoController.listTablaDepartamento();
 		
 		/**
 		 * ==========================================================================
@@ -41,22 +41,37 @@ public class UsuarioView {
 		 * ==========================================================================
 		 */
 		
-		
-		//String empleado = new EmpleadoController().createUsuario("Sara", 2000.23, 2);
-		//String empleado2 = new EmpleadoController().createUsuario("Pedro", 2600.23, 1);
+		//String empleado = new EmpleadoController().createEmpleado("Martin", 2000.00, 1);
 		//System.out.println(empleado);
 		
 		//String borrarEmpleado = new EmpleadoController().deleteEmpleado(7);
 		//System.out.println(borrarEmpleado);
 		
-		//String updateEmpleado = new EmpleadoController().updateEmpleado(5, "Martin", 1900, 1);
-		//System.out.println(updateEmpleado);
+		String updateEmpleado = new EmpleadoController().updateEmpleado(10, "Maria", 2000, 1);
+		System.out.println(updateEmpleado);
 		
-		//String getEmpleado = new EmpleadoController().getEmpleado(5);
+		//String getEmpleado = new EmpleadoController().getEmpleado(10);
 		//System.out.println(getEmpleado);
 		//EmpleadoController.listTablaEmpleados();
 		
 
 	}
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

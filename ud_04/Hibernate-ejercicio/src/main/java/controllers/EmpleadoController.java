@@ -16,7 +16,8 @@ public class EmpleadoController {
 	
 	
 	public String getEmpleado(int id) {
-		SessionFactory sessionFactory = new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(Empleado.class).buildSessionFactory();
+		SessionFactory sessionFactory = new Configuration().configure("hibernate.cfg.xml")
+				.addAnnotatedClass(Empleado.class).buildSessionFactory();
 		//se abre la sesión
 		Session session = sessionFactory.openSession();
 		
@@ -32,7 +33,7 @@ public class EmpleadoController {
 			e.printStackTrace();
 		}
 		
-		return "No se ha podido encontrar el departamento";
+		return "No se ha podido encontrar el empleado";
 	}
 	
 	
@@ -45,9 +46,9 @@ public class EmpleadoController {
 	 * @param departamento
 	 * @return
 	 */
-	public String createUsuario(String nombre, double sueldo, int departamento) {
+	public String createEmpleado(String nombre, double sueldo, int departamento) {
 		SessionFactory sessionFactory = new Configuration().configure("hibernate.cfg.xml")
-				.addAnnotatedClass(Empleado.class).buildSessionFactory();
+				.buildSessionFactory();
 
 		Session session = sessionFactory.openSession();
 

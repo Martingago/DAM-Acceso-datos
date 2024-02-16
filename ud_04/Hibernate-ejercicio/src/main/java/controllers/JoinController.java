@@ -17,7 +17,7 @@ public class JoinController {
 		//Se inicia una transaccion
 		session.beginTransaction();
 		
-		String hql = "SELECT e.id, e.nombre, e.sueldo, d.nombre FROM Empleado e INNER JOIN e.departamento_data d";
+		String hql = "SELECT e.id, e.nombre, e.sueldo, d.nombre FROM Empleado e INNER JOIN Departamento d on e.departamento = d.id";
 		Query query = session.createQuery(hql);
 		
 		List<Object[]> resultados = query.list();
