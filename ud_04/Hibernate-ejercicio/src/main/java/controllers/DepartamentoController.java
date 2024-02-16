@@ -1,8 +1,11 @@
 package controllers;
 
+import java.util.List;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.query.Query;
 
 import com.modelos.Departamento;
 import com.modelos.Empleado;
@@ -117,6 +120,25 @@ public class DepartamentoController {
 		
 		return "Error al actualizar el departamento";
 	}
+	
+	
+	/**
+	 * Lista la tabla de departamento
+	 */
+	public static void listTablaDepartamento() {
+		SessionFactory sessionFactory = new Configuration().configure("hibernate.cfg.xml")
+				.addAnnotatedClass(Departamento.class).buildSessionFactory();
+
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		 Query query = session.createQuery("FROM Departamento");
+		 List<Departamento> departamentos = query.list();
+		 for (Departamento departamento : departamentos) {
+		           System.out.println(departamento.toString());
+		 }
+		
+	}
+	
 	
 	
 

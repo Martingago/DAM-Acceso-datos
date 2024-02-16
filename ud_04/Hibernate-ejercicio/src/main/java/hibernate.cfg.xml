@@ -9,7 +9,8 @@
     <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
     <property name="hibernate.show_sql">true</property>
 
-    
-
+   	<!-- Mapeo de las tablas -->
+	<mapping class="com.modelos.Empleado"/>
+	<mapping class="com.modelos.Departamento"/>
    </session-factory>
  </hibernate-configuration>

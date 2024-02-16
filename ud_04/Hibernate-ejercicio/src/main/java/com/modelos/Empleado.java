@@ -3,6 +3,8 @@ package com.modelos;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -18,8 +20,14 @@ public class Empleado {
 	@Column(name="sueldo")
 	private double sueldo;
 	
-	@Column(name="departamento")
+	@Column(name="departamento", insertable = false, updatable = false)
 	private int departamento;
+	
+	
+	 @ManyToOne
+	    @JoinColumn(name="departamento")
+	    private Departamento departamento_data;
+	
 	
 	//Constructor	
 	public Empleado(){}
