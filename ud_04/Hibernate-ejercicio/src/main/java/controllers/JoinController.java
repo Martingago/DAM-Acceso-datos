@@ -9,7 +9,11 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
 public class JoinController {
-
+	
+	
+	/**
+	 * Función que muestra un listado de Empleados + JOIN de la tabla departamentos con su información (nombre)
+	 */
 	public static void joinTablas() {
 		SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
 		Session session = sessionFactory.openSession();

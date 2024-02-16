@@ -144,12 +144,14 @@ public class EmpleadoController {
 				.addAnnotatedClass(Empleado.class).buildSessionFactory();
 
 		Session session = sessionFactory.openSession();
-		//session.beginTransaction();
+		session.beginTransaction();
 		 Query query = session.createQuery("FROM Empleado");
+		 
 		 List<Empleado> empleados = query.list();
 		 for (Empleado empleado : empleados) {
 		           System.out.println(empleado.toString());
 		 }
+		 session.close();
 		
 	}
 	
