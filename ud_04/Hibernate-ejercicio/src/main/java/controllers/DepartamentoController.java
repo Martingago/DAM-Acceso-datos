@@ -136,6 +136,7 @@ public class DepartamentoController {
 		 for (Departamento departamento : departamentos) {
 		           System.out.println(departamento.toString());
 		 }
+		 session.close();
 		
 	}
 	
