@@ -13,8 +13,12 @@ public class MainActividad {
 
         /*Este código anterior lo ponemos por si la base de datos ya existiera y quisiéramos empezar desde el principio.*/
         fichero.delete();
+        
+        
         Configuration config = Db4o.newConfiguration();
         ObjectContainer baseDatos = Db4o.openFile(config, "BDJefeHijo");
+        
+        
         // Aquí iría el código para almacenar los objetos Jefe y Hijo...
         baseDatos.store(new Jefe("Ángel", 5, 53, new Hijo("Gustavo", 7)));
         baseDatos.store(new Jefe("Nieves", 3, 45, new Hijo("Iván", 3)));
@@ -28,11 +32,12 @@ public class MainActividad {
         baseDatos.store(new Jefe("Jesús", 19, 44, new Hijo("Rubén", 12)));
 
 
-        buscarMayoresQue(baseDatos, 55);
-        incrementarEdadJefe(baseDatos, "Miguel");
-        mostrarDatosJefe(baseDatos, "Miguel");
-        eliminarJefeAntiguedad(baseDatos, 6);
-        visualizarJefes(baseDatos);
+        //buscarMayoresQue(baseDatos, 55);
+       incrementarEdadJefe(baseDatos, "Miguel");        
+       mostrarDatosJefe(baseDatos, "Miguel");
+//        eliminarJefeAntiguedad(baseDatos, 6);
+//        visualizarJefes(baseDatos);
+
         baseDatos.close();
         
     }
