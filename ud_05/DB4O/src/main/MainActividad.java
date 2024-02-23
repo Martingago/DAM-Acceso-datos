@@ -9,56 +9,134 @@ public class MainActividad {
 
     public static void main(String[] args) {
 
-        File fichero = new File("baseDatos");
-        fichero.delete();
+        File fichero = new File("BDJefeHijo");
+
         /*Este código anterior lo ponemos por si la base de datos ya existiera y quisiéramos empezar desde el principio.*/
         fichero.delete();
         Configuration config = Db4o.newConfiguration();
         ObjectContainer baseDatos = Db4o.openFile(config, "BDJefeHijo");
-                // Aquí iría el código para almacenar los objetos Jefe y Hijo...
+        // Aquí iría el código para almacenar los objetos Jefe y Hijo...
+        baseDatos.store(new Jefe("Ángel", 5, 53, new Hijo("Gustavo", 7)));
+        baseDatos.store(new Jefe("Nieves", 3, 45, new Hijo("Iván", 3)));
+        baseDatos.store(new Jefe("Jesús", 3, 5, new Hijo("Noelia", 3)));
+        baseDatos.store(new Jefe("Dolores", 5, 63, new Hijo("Sergio", 7)));
+        baseDatos.store(new Jefe("Vicki", 3, 5, null));
+        baseDatos.store(new Jefe("Fátima", 5, 63, new Hijo("Lidia", 27)));
+        baseDatos.store(new Jefe("Juan Luís", 3, 5, null));
+        baseDatos.store(new Jefe("Elena", 1, 42, new Hijo("David", 19)));
+        baseDatos.store(new Jefe("Miguel", 20, 45, new Hijo("Paula", 3)));
+        baseDatos.store(new Jefe("Jesús", 19, 44, new Hijo("Rubén", 12)));
 
-        // Visualiza los jefes que tengan más de 55 años.
-        Query query = baseDatos.query();
-        query.constrain(Jefe.class);
-        query.descend("edad").constrain(55).greater();
-        ObjectSet<Jefe> result = query.execute();
-        System.out.println("Jefes con más de 55 años:");
-        for (Jefe jefe : result) {
-            System.out.println(jefe);
-        }
 
-        // Modifica la edad de Miguel incrementando su edad un año más.
-        Query queryMiguel = baseDatos.query();
-        queryMiguel.constrain(Jefe.class);
-        queryMiguel.descend("nombre").constrain("Miguel");
-        ObjectSet<Jefe> resultMiguel = queryMiguel.execute();
-        if (!resultMiguel.isEmpty()) {
-            Jefe miguel = resultMiguel.next();
-            miguel.setEdad(miguel.getEdad() + 1);
-            baseDatos.store(miguel);
-            System.out.println("La edad de Miguel ha sido incrementada.");
-        }
-
-        // Borra los jefes que llevan más de 6 años en la empresa.
-        Query queryAntiguos = baseDatos.query();
-        queryAntiguos.constrain(Jefe.class);
-        queryAntiguos.descend("antiguedad").constrain(6).greater();
-        ObjectSet<Jefe> resultAntiguos = queryAntiguos.execute();
-        for (Jefe jefe : resultAntiguos) {
-            baseDatos.delete(jefe);
-        }
-        System.out.println("Los jefes que llevan más de 6 años en la empresa han sido borrados.");
-
-        // Visualiza todos los jefes que quedan, incluidos sus hijos, que no han sido borrados anteriormente.
-        Query queryTodos = baseDatos.query();
-        queryTodos.constrain(Jefe.class);
-        ObjectSet<Jefe> resultTodos = queryTodos.execute();
-        System.out.println("Jefes restantes:");
-        for (Jefe jefe : resultTodos) {
-            System.out.println(jefe);
-        }
-
+        buscarMayoresQue(baseDatos, 55);
+        incrementarEdadJefe(baseDatos, "Miguel");
+        mostrarDatosJefe(baseDatos, "Miguel");
+        eliminarJefeAntiguedad(baseDatos, 6);
+        visualizarJefes(baseDatos);
         baseDatos.close();
+        
     }
 
+    /**
+     * Muestra información sobre un jefe cuyo nombre ha sido pasado por
+     * parámetro
+     *
+     * @param db
+     * @param nombre
+     */
+    public static void mostrarDatosJefe(ObjectContainer db, String nombre) {
+        Query query = db.query();
+        query.constrain(Jefe.class);
+        query.descend("nombre").constrain(nombre);
+        ObjectSet result = query.execute();
+        //Si el resultado está vacio se informa al usuario
+        if (result.hasNext()) {
+            Jefe jefe = (Jefe) result.next();
+            System.out.println(jefe.toString());
+        } else {
+            System.out.println("No se ha encontrado ningún resultado para el nombre de: " + nombre);
+        }
+    }
+
+    /**
+     * Muestra los resultados en la base de datos del ObjectSet proporcionado
+     *
+     * @param objeto
+     */
+    public static void mostrarConsulta(ObjectSet objeto) {
+        while (objeto.hasNext()) {
+            System.out.println(objeto.next());
+        }
+
+    }
+
+    /**
+     * Funcion que realiza una comprobacion en la BBDD de aquellos Jefes con
+     * edad mayor a la especificada
+     *
+     * @param db
+     * @param edad
+     */
+    public static void buscarMayoresQue(ObjectContainer db, int edad) {
+        Query query = db.query();
+        query.constrain(Jefe.class);
+        query.descend("edad").constrain(edad).greater();
+        ObjectSet result = query.execute();
+        mostrarConsulta(result);
+    }
+
+    /**
+     * Incrementa la edad de un Jefe cuyo nombre es pasado como argumento
+     *
+     * @param db
+     * @param nombre
+     */
+    public static void incrementarEdadJefe(ObjectContainer db, String nombre) {
+        Query query = db.query();
+        query.constrain(Jefe.class);
+        query.descend("nombre").constrain(nombre);
+        ObjectSet result = query.execute();
+        //Si el resultado está vacio se informa al usuario
+        if (result.hasNext()) {
+            Jefe jefe = (Jefe) result.next();
+            jefe.setEdad(jefe.getEdad() + 1);
+            db.store(jefe);
+            System.out.println("La edad de " + nombre + " ha sido incrementada en 1.");
+
+        } else {
+            System.out.println("No se ha encontrado ningún resultado para el nombre de: " + nombre);
+        }
+
+    }
+
+    public static void eliminarJefeAntiguedad(ObjectContainer db, int anosTrabajados) {
+        Query query = db.query();
+        query.constrain(Jefe.class);
+        query.descend("antiguedad").constrain(anosTrabajados).greater();
+        ObjectSet result = query.execute();
+        if(!result.hasNext()) System.out.println("No se han encontrado Jefes con antiguedad igual o superior a: " + anosTrabajados);
+        while (result.hasNext()) {
+            Jefe jefe = (Jefe) result.next();
+            db.delete(jefe);
+            System.out.println("Eliminado de la empresa: " + jefe);
+        }
+    }
+    
+    /**
+     * Función que visualiza TODOS los jefes de la BBDD y sus hijos
+     * @param db 
+     */
+    public static void visualizarJefes(ObjectContainer db){
+         Query query = db.query();
+        query.constrain(Jefe.class);
+        ObjectSet result = query.execute();
+        if(!result.hasNext()) System.out.println("No hay Jefes en la empresa");
+        while(result.hasNext()){
+            Jefe jefe = (Jefe) result.next();
+            Hijo hijo = (Hijo) jefe.getHijo();
+            System.out.println(jefe.toString() + " " + (hijo != null ? hijo.toString() : "No tiene hijos"));
+        
+        }
+        
+    }
 }
