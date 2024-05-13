@@ -14,7 +14,7 @@ public class MatriculaAlumnoBean implements Serializable {
     private String Curso;
     private double Nota;
     private Vector<Matricula> Matriculas = new Vector();
-    
+
     private PropertyChangeSupport propertySupport;
 
     public MatriculaAlumnoBean() {
@@ -55,12 +55,12 @@ public class MatriculaAlumnoBean implements Serializable {
         this.Nota = Nota;
     }
 
-    public Vector getMatriculas() {
+    public Vector<Matricula> getMatriculas() {
         return Matriculas;
     }
-    
+
     //Clase auxiliar de las Matriculas:
-    private class Matricula {
+    public class Matricula implements Serializable {
 
         String DNI;
         String NombreModulo;
@@ -77,9 +77,38 @@ public class MatriculaAlumnoBean implements Serializable {
             this.Nota = Nota;
         }
 
-    }
+        public String getDNI() {
+            return DNI;
+        }
 
-    
+        public void setDNI(String DNI) {
+            this.DNI = DNI;
+        }
+
+        public String getNombreModulo() {
+            return NombreModulo;
+        }
+
+        public void setNombreModulo(String NombreModulo) {
+            this.NombreModulo = NombreModulo;
+        }
+
+        public String getCurso() {
+            return Curso;
+        }
+
+        public void setCurso(String Curso) {
+            this.Curso = Curso;
+        }
+
+        public Double getNota() {
+            return Nota;
+        }
+
+        public void setNota(Double Nota) {
+            this.Nota = Nota;
+        }
+    }
 
     //Función que se conecta a la BBDD y crea un vector de Matriculas con la información extraida de la tabla Matriculas
     private void recargarFilas() {
@@ -101,6 +130,7 @@ public class MatriculaAlumnoBean implements Serializable {
 
             rs.close();
             con.close();
+            propertySupport.firePropertyChange("matriculasRecargadas", null, Matriculas);
 
         } catch (ClassNotFoundException ex) {
             System.out.println("Error clase no encontrada: " + ex);
@@ -155,6 +185,50 @@ public class MatriculaAlumnoBean implements Serializable {
 
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         propertySupport.removePropertyChangeListener(listener);
+    }
+
+    /**
+     * Funcion que agrega una matricula a la BBDD y emite un evento de actualización.
+     * @param DNI
+     * @param nombreModulo
+     * @param curso
+     * @param nota
+     */
+    public void agregarMatricula(String DNI, String nombreModulo, String curso, double nota) {
+        Matricula newMatricula = new Matricula(DNI, nombreModulo, curso, nota);
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost/actividad_ad", "root", "");
+            Statement stat = con.createStatement();
+            String query = "INSERT INTO matriculas (DNI, NombreModulo, Curso, Nota) VALUES ('" + DNI + "', '" + nombreModulo + "', '" + curso + "', " + nota + ")";
+            stat.executeUpdate(query); //Se ejecuta la sentencia de datos en la BBDD
+            Matriculas.add(newMatricula); // Se añade la matricula al vector solo si la inserción en la base de datos es exitosa
+            // Se crea un evento con la nueva matricula añadida:
+            propertySupport.firePropertyChange("matriculaAgregada", null, newMatricula);
+            con.close(); // Se cierra la conexion
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Clase no encontrada: " + ex);
+        } catch (SQLException ex) {
+            System.out.println("Excepción en el código SQL: " + ex);
+        }
+
+    }
+
+    //Lista todas las matriculas de la BBDD
+    public Vector<Matricula> listarMatriculas() {
+        return Matriculas;
+    }
+
+    //Lista las matriculas de la BBDD filtrados por el DNI
+    public Vector<Matricula> listarMatriculasPorDNI(String DNI) {
+        Vector<Matricula> listMatriculasDNI = new Vector();
+        //Se recorren todos los elementos de matricula y se comprueban aquellos que coinciden con el DNI 
+        for (Matricula matricula : Matriculas) {
+            if (matricula.getDNI().equals(DNI)) {
+                listMatriculasDNI.add(matricula);
+            }
+        }
+        return listMatriculasDNI;
     }
 
 }
