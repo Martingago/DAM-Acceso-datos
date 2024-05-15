@@ -5,6 +5,8 @@ import java.io.Serializable;
 import java.util.Vector;
 import java.sql.*;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MatriculaAlumnoBean implements Serializable {
 
@@ -13,13 +15,17 @@ public class MatriculaAlumnoBean implements Serializable {
     private String NombreModulo;
     private String Curso;
     private double Nota;
-    private Vector<Matricula> Matriculas = new Vector();
+
+    private Vector<Matricula> matriculas = new Vector();
+    private List<MatriculaListener> listeners = new ArrayList<>(); //Array que contiene los listeners del componente
 
     private PropertyChangeSupport propertySupport;
 
     public MatriculaAlumnoBean() {
         propertySupport = new PropertyChangeSupport(this);
+        inicializarListeners();
         recargarFilas();
+
     }
 
     //Getters y setters
@@ -55,82 +61,102 @@ public class MatriculaAlumnoBean implements Serializable {
         this.Nota = Nota;
     }
 
-    public Vector<Matricula> getMatriculas() {
-        return Matriculas;
+    //Metodo para añadir el listener:
+    public void addMatriculaListener(MatriculaListener listener) {
+        listeners.add(listener);
     }
 
-    //Clase auxiliar de las Matriculas:
-    public class Matricula implements Serializable {
+    // Método para remover un listener
+    public void removeMatriculaListener(MatriculaListener listener) {
+        listeners.remove(listener);
+    }
 
-        String DNI;
-        String NombreModulo;
-        String Curso;
-        Double Nota;
+    /**
+     * Se inicializan por defecto dentro del Bean cuales son los listeners que
+     * realizará el componente cuando sucede algun evento
+     */
+    private void inicializarListeners() {
+        // Agregar los listeners por defecto
+        MatriculaListener listener = new MatriculaListener() {
+            @Override
+            public void matriculasRecargadaSistema(MatriculaEvent event) {
+                // Código para manejar el evento de matrículas recargadas del sistema
+                System.out.println("\n=====================================");
+                System.out.println("MODO ESTABLECIDO: MATRICULAS SISTEMA ");
+                System.out.println("=====================================");
+            }
 
-        public Matricula() {
-        }
+            @Override
+            public void matriculasRecargadaEspecifica(MatriculaEvent event) {
+                // Código para manejar el evento de matrículas recargadas específicas
+                System.out.println("\n=====================================");
+                System.out.println(" MODO ESTABLECIDO: USUARIO CONCRETO  ");
+                System.out.println("=====================================");
+            }
 
-        public Matricula(String DNI, String NombreModulo, String Curso, Double Nota) {
-            this.DNI = DNI;
-            this.NombreModulo = NombreModulo;
-            this.Curso = Curso;
-            this.Nota = Nota;
-        }
+            @Override
+            public void matriculaAgregada(MatriculaEvent event) {
+                // Código para manejar el evento de matrícula agregada
+                System.out.println("\n=====================================");
+                System.out.println("Una nueva matrícula ha sido agregada.");
+                System.out.println("=====================================");
+            }
+        };
+        // Agregar el listener al componente
+        addMatriculaListener(listener);
+    }
 
-        public String getDNI() {
-            return DNI;
-        }
-
-        public void setDNI(String DNI) {
-            this.DNI = DNI;
-        }
-
-        public String getNombreModulo() {
-            return NombreModulo;
-        }
-
-        public void setNombreModulo(String NombreModulo) {
-            this.NombreModulo = NombreModulo;
-        }
-
-        public String getCurso() {
-            return Curso;
-        }
-
-        public void setCurso(String Curso) {
-            this.Curso = Curso;
-        }
-
-        public Double getNota() {
-            return Nota;
-        }
-
-        public void setNota(Double Nota) {
-            this.Nota = Nota;
+    /**
+     * Metodo para notificar del suceso de un evento
+     *
+     * @param eventType
+     */
+    private void lanzarMatriculaEvent(String eventType) {
+        MatriculaEvent event = new MatriculaEvent(this, eventType);
+        for (MatriculaListener listener : listeners) {
+            switch (eventType) {
+                case "matriculasRecargadaSistema":
+                    listener.matriculasRecargadaSistema(event);
+                    break;
+                case "matriculasRecargadaEspecifica":
+                    listener.matriculasRecargadaEspecifica(event);
+                    break;
+                case "matriculaAgregada":
+                    listener.matriculaAgregada(event);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
-    //Función que se conecta a la BBDD y crea un vector de Matriculas con la información extraida de la tabla Matriculas
-    private void recargarFilas() {
+    /**
+     * Función que se conecta a la BBDD y crea un vector de Matriculas con la
+     * información extraida de la tabla Matriculas Es decir, esta función va a
+     * cargar TODAS las matriculas existentes en el sistema.
+     */
+    public void recargarFilas() {
         try {
+            matriculas.clear(); //Se limpian las matriculas
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://localhost/actividad_ad", "root", "");
             Statement stat = con.createStatement();
             ResultSet rs = stat.executeQuery("select * from matriculas");
             while (rs.next()) {
                 Matricula matricula = new Matricula(rs.getString("DNI"), rs.getString("NombreModulo"), rs.getString("Curso"), rs.getDouble("Nota"));
-                Matriculas.add(matricula);
+                matriculas.add(matricula);
             }
-            Matricula matricula = new Matricula();
-            matricula = (Matricula) Matriculas.elementAt(1);
-            this.DNI = matricula.DNI;
-            this.NombreModulo = matricula.NombreModulo;
-            this.Curso = matricula.Curso;
-            this.Nota = matricula.Nota;
+            if (!matriculas.isEmpty()) {
+                Matricula matricula = matriculas.firstElement();
+                this.DNI = matricula.DNI;
+                this.Nota = matricula.Nota;
+                this.Curso = matricula.Curso;
+                this.NombreModulo = matricula.NombreModulo;
+            }
 
             rs.close();
             con.close();
-            propertySupport.firePropertyChange("matriculasRecargadas", null, Matriculas);
+            lanzarMatriculaEvent("matriculasRecargadaSistema");
 
         } catch (ClassNotFoundException ex) {
             System.out.println("Error clase no encontrada: " + ex);
@@ -140,14 +166,15 @@ public class MatriculaAlumnoBean implements Serializable {
     }
 
     /**
-     * Selecciona un elemento del Vector de matriculas en la posicion i
+     * Selecciona un elemento del Vector de matriculas en la posicion i y lo
+     * establece como valores determinados del componente
      *
      * @param i
      */
     public void seleccionarFila(int i) {
-        if (i <= Matriculas.size()) {
-            Matricula matricula = new Matricula();
-            matricula = (Matricula) Matriculas.elementAt(i);
+
+        if (i <= matriculas.size()) {
+            Matricula matricula = matriculas.elementAt(i);
             this.DNI = matricula.DNI;
             this.NombreModulo = matricula.NombreModulo;
             this.Curso = matricula.Curso;
@@ -160,23 +187,62 @@ public class MatriculaAlumnoBean implements Serializable {
         }
     }
 
-    public void seleccionarDNI(String nDNI) {
-        Matricula matricula = new Matricula();
-        int i = 0;
-        this.DNI = "";
-        this.NombreModulo = "";
-        this.Curso = "";
-        this.Nota = 0;
+    /**
+     * Función que recarga el valor del Vector de Matriculas con los datos de un
+     * DNI específicado en el componente.
+     */
+    public void recargarDNI() {
+        matriculas.clear(); //Se limpian las matriculas
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost/actividad_ad", "root", "");
+            Statement stat = con.createStatement();
+            String query = "SELECT * FROM matriculas WHERE DNI = ?";
+            PreparedStatement pstmt = con.prepareStatement(query);
+            pstmt.setString(1, this.DNI);
+            ResultSet rs = pstmt.executeQuery();
 
-        while (this.DNI.equals("") && i < Matriculas.size()) {
-            matricula = (Matricula) Matriculas.elementAt(i);
-            if (matricula.DNI.equals(nDNI)) {
-                this.DNI = matricula.DNI;
-                this.NombreModulo = matricula.NombreModulo;
-                this.Curso = matricula.Curso;
-                this.Nota = matricula.Nota;
+            while (rs.next()) {
+                Matricula matricula = new Matricula(rs.getString("DNI"),
+                        rs.getString("NombreModulo"),
+                        rs.getString("Curso"),
+                        rs.getDouble("Nota"));
+                matriculas.add(matricula);
             }
+            rs.close();
+            con.close();
+            //Se actualiza el modo a "matriculasRecargadaEspecifica" para que se muestre una notificación de que estamos cargando matriculas de un usuario específico.
+            lanzarMatriculaEvent("matriculasRecargadaEspecifica");
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Clase no encontrada: " + ex);
+        } catch (SQLException ex) {
+            System.out.println("Excepción en la solicitud SQL: " + ex);
         }
+
+    }
+
+    /**
+     * Funcion que agrega una matricula a la BBDD y emite un evento de
+     * actualización.
+     */
+    public void addMatricula() {
+        Matricula newMatricula = new Matricula(this.DNI, this.NombreModulo, this.Curso, this.Nota);
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost/actividad_ad", "root", "");
+            Statement stat = con.createStatement();
+            String query = "INSERT INTO matriculas (DNI, NombreModulo, Curso, Nota) VALUES ('" + this.DNI + "', '" + this.NombreModulo + "', '" + this.Curso + "', " + this.Nota + ")";
+            stat.executeUpdate(query); //Se ejecuta la sentencia de datos en la BBDD
+            matriculas.add(newMatricula); // Se añade la matricula al vector solo si la inserción en la base de datos es exitosa
+            // Se crea un evento con la nueva matricula añadida:
+            lanzarMatriculaEvent("matriculaAgregada");
+            con.close(); // Se cierra la conexion
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Clase no encontrada: " + ex);
+        } catch (SQLException ex) {
+            System.out.println("Excepción en el código SQL: " + ex);
+        }
+
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -188,47 +254,15 @@ public class MatriculaAlumnoBean implements Serializable {
     }
 
     /**
-     * Funcion que agrega una matricula a la BBDD y emite un evento de actualización.
-     * @param DNI
-     * @param nombreModulo
-     * @param curso
-     * @param nota
+     * Funcion que muestra por pantalla y devuelve una lista de Matriculas
+     *
+     * @return Vector de matriculas
      */
-    public void agregarMatricula(String DNI, String nombreModulo, String curso, double nota) {
-        Matricula newMatricula = new Matricula(DNI, nombreModulo, curso, nota);
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection("jdbc:mysql://localhost/actividad_ad", "root", "");
-            Statement stat = con.createStatement();
-            String query = "INSERT INTO matriculas (DNI, NombreModulo, Curso, Nota) VALUES ('" + DNI + "', '" + nombreModulo + "', '" + curso + "', " + nota + ")";
-            stat.executeUpdate(query); //Se ejecuta la sentencia de datos en la BBDD
-            Matriculas.add(newMatricula); // Se añade la matricula al vector solo si la inserción en la base de datos es exitosa
-            // Se crea un evento con la nueva matricula añadida:
-            propertySupport.firePropertyChange("matriculaAgregada", null, newMatricula);
-            con.close(); // Se cierra la conexion
-        } catch (ClassNotFoundException ex) {
-            System.out.println("Clase no encontrada: " + ex);
-        } catch (SQLException ex) {
-            System.out.println("Excepción en el código SQL: " + ex);
-        }
-
-    }
-
-    //Lista todas las matriculas de la BBDD
     public Vector<Matricula> listarMatriculas() {
-        return Matriculas;
-    }
-
-    //Lista las matriculas de la BBDD filtrados por el DNI
-    public Vector<Matricula> listarMatriculasPorDNI(String DNI) {
-        Vector<Matricula> listMatriculasDNI = new Vector();
-        //Se recorren todos los elementos de matricula y se comprueban aquellos que coinciden con el DNI 
-        for (Matricula matricula : Matriculas) {
-            if (matricula.getDNI().equals(DNI)) {
-                listMatriculasDNI.add(matricula);
-            }
+        for (Matricula matricula : matriculas) {
+            System.out.println(matricula.getDNI() + ", " + matricula.getNombreModulo() + ", " + matricula.getCurso() + ", " + matricula.getNota());
         }
-        return listMatriculasDNI;
+        return matriculas;
     }
 
 }

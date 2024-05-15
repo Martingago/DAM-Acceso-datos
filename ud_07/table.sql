@@ -1,3 +1,4 @@
+
 drop table if exists alumnos;
 DROP TABLE if exists matriculas;
 
