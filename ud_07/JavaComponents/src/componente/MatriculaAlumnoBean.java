@@ -17,13 +17,14 @@ public class MatriculaAlumnoBean implements Serializable {
     private double Nota;
 
     private Vector<Matricula> matriculas = new Vector();
-    private List<MatriculaListener> listeners = new ArrayList<>(); //Array que contiene los listeners del componente
+    private GestorEventosMatricula eventos;
 
     private PropertyChangeSupport propertySupport;
 
     public MatriculaAlumnoBean() {
         propertySupport = new PropertyChangeSupport(this);
-        inicializarListeners();
+        eventos = new GestorEventosMatricula();
+        eventos.inicializarListeners();
         recargarFilas();
 
     }
@@ -61,74 +62,8 @@ public class MatriculaAlumnoBean implements Serializable {
         this.Nota = Nota;
     }
 
-    //Metodo para añadir el listener:
-    public void addMatriculaListener(MatriculaListener listener) {
-        listeners.add(listener);
-    }
 
-    // Método para remover un listener
-    public void removeMatriculaListener(MatriculaListener listener) {
-        listeners.remove(listener);
-    }
 
-    /**
-     * Se inicializan por defecto dentro del Bean cuales son los listeners que
-     * realizará el componente cuando sucede algun evento
-     */
-    private void inicializarListeners() {
-        // Agregar los listeners por defecto
-        MatriculaListener listener = new MatriculaListener() {
-            @Override
-            public void matriculasRecargadaSistema(MatriculaEvent event) {
-                // Código para manejar el evento de matrículas recargadas del sistema
-                System.out.println("\n=====================================");
-                System.out.println("MODO ESTABLECIDO: MATRICULAS SISTEMA ");
-                System.out.println("=====================================");
-            }
-
-            @Override
-            public void matriculasRecargadaEspecifica(MatriculaEvent event) {
-                // Código para manejar el evento de matrículas recargadas específicas
-                System.out.println("\n=====================================");
-                System.out.println(" MODO ESTABLECIDO: USUARIO CONCRETO  ");
-                System.out.println("=====================================");
-            }
-
-            @Override
-            public void matriculaAgregada(MatriculaEvent event) {
-                // Código para manejar el evento de matrícula agregada
-                System.out.println("\n=====================================");
-                System.out.println("Una nueva matrícula ha sido agregada.");
-                System.out.println("=====================================");
-            }
-        };
-        // Agregar el listener al componente
-        addMatriculaListener(listener);
-    }
-
-    /**
-     * Metodo para notificar del suceso de un evento
-     *
-     * @param eventType
-     */
-    private void lanzarMatriculaEvent(String eventType) {
-        MatriculaEvent event = new MatriculaEvent(this, eventType);
-        for (MatriculaListener listener : listeners) {
-            switch (eventType) {
-                case "matriculasRecargadaSistema":
-                    listener.matriculasRecargadaSistema(event);
-                    break;
-                case "matriculasRecargadaEspecifica":
-                    listener.matriculasRecargadaEspecifica(event);
-                    break;
-                case "matriculaAgregada":
-                    listener.matriculaAgregada(event);
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
 
     /**
      * Función que se conecta a la BBDD y crea un vector de Matriculas con la
@@ -156,7 +91,7 @@ public class MatriculaAlumnoBean implements Serializable {
 
             rs.close();
             con.close();
-            lanzarMatriculaEvent("matriculasRecargadaSistema");
+            eventos.lanzarMatriculaEvent("matriculasRecargadaSistema");
 
         } catch (ClassNotFoundException ex) {
             System.out.println("Error clase no encontrada: " + ex);
@@ -212,7 +147,7 @@ public class MatriculaAlumnoBean implements Serializable {
             rs.close();
             con.close();
             //Se actualiza el modo a "matriculasRecargadaEspecifica" para que se muestre una notificación de que estamos cargando matriculas de un usuario específico.
-            lanzarMatriculaEvent("matriculasRecargadaEspecifica");
+            eventos.lanzarMatriculaEvent("matriculasRecargadaEspecifica");
         } catch (ClassNotFoundException ex) {
             System.out.println("Clase no encontrada: " + ex);
         } catch (SQLException ex) {
@@ -235,7 +170,7 @@ public class MatriculaAlumnoBean implements Serializable {
             stat.executeUpdate(query); //Se ejecuta la sentencia de datos en la BBDD
             matriculas.add(newMatricula); // Se añade la matricula al vector solo si la inserción en la base de datos es exitosa
             // Se crea un evento con la nueva matricula añadida:
-            lanzarMatriculaEvent("matriculaAgregada");
+            eventos.lanzarMatriculaEvent("matriculaAgregada");
             con.close(); // Se cierra la conexion
         } catch (ClassNotFoundException ex) {
             System.out.println("Clase no encontrada: " + ex);
